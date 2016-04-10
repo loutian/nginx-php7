@@ -1,4 +1,4 @@
-FROM registry.aliyuncs.com/loutian/centos:centos7-ssh
+FROM centos
 MAINTAINER loutian <loutian@gmail.com>
 ##
 # Nginx: 1.9.14
@@ -160,7 +160,7 @@ RUN echo "extension=redis.so" >> /usr/local/php/etc/php.ini
 RUN echo "extension=yaf.so" >> /usr/local/php/etc/php.ini
 RUN rm -rf /tmp/*
 
-WORKDIR ~
+WORKDIR /root/
 
 #Add supervisord conf
 ADD config/supervisord.conf /etc/supervisord.conf
@@ -190,5 +190,3 @@ EXPOSE 80 443 9000
 #Start it
 ENTRYPOINT ["/start.sh"]
 
-#Start web server
-#CMD ["/bin/bash", "/start.sh"]
