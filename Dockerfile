@@ -168,8 +168,8 @@ ADD index.php /data/www/index.php
 #Update nginx config
 ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
 
-#add rsync
-
+#change chown
+RUN chown -R www. /data/www/
 
 #Start
 ADD start.sh /start.sh
