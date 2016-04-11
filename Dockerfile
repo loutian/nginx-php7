@@ -116,14 +116,6 @@ RUN cd /home/nginx-php && \
     --without-pear && \
     make -j8 && make install
 
-#Add xdebug extension
-RUN cd /home/nginx-php && \
-    tar -zxvf XDEBUG_2_4_0RC3.tar.gz && \
-    cd xdebug-XDEBUG_2_4_0RC3 && \
-    /usr/local/php/bin/phpize && \
-    ./configure --enable-xdebug --with-php-config=/usr/local/php/bin/php-config && \
-    make -j8 && \
-    cp modules/xdebug.so /usr/local/php/lib/php/extensions/xdebug.so
 
 RUN	cd /home/nginx-php/php-$PHP_VERSION && \
     cp php.ini-production /usr/local/php/etc/php.ini && \
@@ -172,7 +164,6 @@ RUN cd / && rm -rf /home/nginx-php
 VOLUME ["/data/www", "/usr/local/nginx/conf/ssl", "/usr/local/nginx/conf/vhost", "/usr/local/php/etc/php.d"]
 ADD index.php /data/www/index.php
 
-ADD config/xdebug.ini /usr/local/php/etc/php.d/xdebug.ini
 
 #Update nginx config
 ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
