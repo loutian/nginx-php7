@@ -177,8 +177,8 @@ ADD config/xdebug.ini /usr/local/php/etc/php.d/xdebug.ini
 #Update nginx config
 ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
 
-#add rsync
-
+#change chown
+RUN chown -R www. /data/www/
 
 #Start
 ADD start.sh /start.sh
