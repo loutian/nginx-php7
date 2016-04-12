@@ -49,8 +49,7 @@ RUN groupadd -r www && \
 #Download nginx & php
 RUN mkdir -p /home/nginx-php && cd $_ && \
     wget -c -O nginx.tar.gz http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
-    wget -O php.tar.gz http://php.net/distributions/php-$PHP_VERSION.tar.gz && \
-    curl -O -SL https://github.com/xdebug/xdebug/archive/XDEBUG_2_4_0RC3.tar.gz
+    wget -O php.tar.gz http://php.net/distributions/php-$PHP_VERSION.tar.gz 
 
 #Make install nginx
 RUN cd /home/nginx-php && \
@@ -122,6 +121,8 @@ RUN	cd /home/nginx-php/php-$PHP_VERSION && \
     cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf && \
     cp /usr/local/php/etc/php-fpm.d/www.conf.default /usr/local/php/etc/php-fpm.d/www.conf
 
+RUN ln -s /usr/local/php/bin/php /usr/local/bin/php
+
 #Install supervisor
 RUN easy_install supervisor && \
     mkdir -p /var/log/supervisor && \
@@ -164,6 +165,15 @@ RUN cd / && rm -rf /home/nginx-php
 VOLUME ["/data/www", "/usr/local/nginx/conf/ssl", "/usr/local/nginx/conf/vhost", "/usr/local/php/etc/php.d"]
 ADD index.php /data/www/index.php
 
+
+# install compose
+RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php
+RUN php -r "if (hash('SHA384', file_get_contents('composer-setup.php')) === '7228c001f88bee97506740ef0888240bd8a760b046ee16db8f4095c0d8d525f2367663f22a46b48d072c816e7fe19959') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+RUN php composer-setup.php
+RUN php -r "unlink('composer-setup.php');"
+RUN mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
+WORKDIR /data/www/
+RUN composer create-project laravel/laravel --prefer-dist laravel
 
 #Update nginx config
 ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
