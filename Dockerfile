@@ -161,9 +161,6 @@ ADD config/supervisord.conf /etc/supervisord.conf
 #Remove zips
 RUN cd / && rm -rf /home/nginx-php
 
-#Create web folder
-VOLUME ["/data/www", "/usr/local/nginx/conf/ssl", "/usr/local/nginx/conf/vhost", "/usr/local/php/etc/php.d"]
-#ADD index.php /data/www/index.php
 
 
 # install compose
@@ -177,6 +174,8 @@ WORKDIR /data/www/
 RUN composer create-project laravel/laravel --prefer-dist laravel
 
 
+#Create web folder
+VOLUME ["/data/www", "/usr/local/nginx/conf/ssl", "/usr/local/nginx/conf/vhost", "/usr/local/php/etc/php.d"]
 
 #Update nginx config
 ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
