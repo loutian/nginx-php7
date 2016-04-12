@@ -163,7 +163,7 @@ RUN cd / && rm -rf /home/nginx-php
 
 #Create web folder
 VOLUME ["/data/www", "/usr/local/nginx/conf/ssl", "/usr/local/nginx/conf/vhost", "/usr/local/php/etc/php.d"]
-ADD index.php /data/www/index.php
+#ADD index.php /data/www/index.php
 
 
 # install compose
@@ -173,11 +173,10 @@ RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 WORKDIR /data/www/
-RUN composer create-project laravel/laravel --prefer-dist laravel
-
 #install laravel5
-
 RUN composer create-project laravel/laravel --prefer-dist laravel
+
+
 
 #Update nginx config
 ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
