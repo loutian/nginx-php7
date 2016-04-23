@@ -124,7 +124,6 @@ RUN	cd /home/nginx-php/php-$PHP_VERSION && \
 #Install supervisor
 RUN easy_install supervisor && \
     mkdir -p /var/log/supervisor && \
-    mkdir -p /var/run/sshd && \
     mkdir -p /var/run/supervisord
 
 
