@@ -39,6 +39,7 @@ RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch
     freetype-devel \
     libmcrypt-devel \
     openssh-server \
+    mysql \
     python-setuptools && \
     yum clean all
 
