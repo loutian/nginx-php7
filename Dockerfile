@@ -50,7 +50,7 @@ RUN groupadd -r www && \
 #Download nginx & php
 RUN mkdir -p /home/nginx-php && cd $_ && \
     wget -c -O nginx.tar.gz http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
-    wget -O php.tar.gz http://php.net/distributions/php-$PHP_VERSION.tar.gz 
+    wget -O php.tar.gz http://php.net/distributions/php-$PHP_VERSION.tar.gz
 
 #Make install nginx
 RUN cd /home/nginx-php && \
@@ -132,7 +132,7 @@ RUN easy_install supervisor && \
 COPY package/redis-php7.zip /tmp/
 WORKDIR /tmp/
 RUN unzip redis-php7.zip
-WORKDIR /tmp/phpredis-php7 
+WORKDIR /tmp/phpredis-php7
 RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make -j8 && make install
 
 
@@ -142,9 +142,9 @@ WORKDIR /tmp/
 RUN unzip yaf-php7.zip
 WORKDIR /tmp/yaf-php7/
 RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config && make -j8 && make install && \
-     echo "extension=redis.so" >> /usr/local/php/etc/php.ini && \
-     echo "extension=yaf.so" >> /usr/local/php/etc/php.ini && \
      rm -rf /tmp/*
+
+ADD config/php.ini /usr/local/php/etc/php.ini
 
 WORKDIR /root/
 
@@ -174,4 +174,3 @@ EXPOSE 80 443 9000
 
 #Start it
 ENTRYPOINT ["/start.sh"]
-
