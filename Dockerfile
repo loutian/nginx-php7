@@ -1,16 +1,16 @@
 FROM centos
 MAINTAINER loutian <loutian@gmail.com>
 ##
-# Nginx: 1.9.14
-# PHP  : 7.0.5
+# Nginx: 1.10.0
+# PHP  : 7.0.6
 ##
 #Install system library
 #RUN yum update -y
 
-ENV PHP_VERSION 7.0.5
-ENV NGINX_VERSION 1.9.14
+ENV PHP_VERSION 7.0.6
+ENV NGINX_VERSION 1.10.0
 
-RUN yum install -y gcc \
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     gcc-c++ \
     autoconf \
     automake \
@@ -39,6 +39,7 @@ RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch
     freetype-devel \
     libmcrypt-devel \
     openssh-server \
+    mysql \
     python-setuptools && \
     yum clean all
 
@@ -49,7 +50,7 @@ RUN groupadd -r www && \
 #Download nginx & php
 RUN mkdir -p /home/nginx-php && cd $_ && \
     wget -c -O nginx.tar.gz http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
-    wget -O php.tar.gz http://php.net/distributions/php-$PHP_VERSION.tar.gz 
+    wget -O php.tar.gz http://php.net/distributions/php-$PHP_VERSION.tar.gz
 
 #Make install nginx
 RUN cd /home/nginx-php && \
@@ -126,32 +127,10 @@ RUN ln -s /usr/local/php/bin/php /usr/local/bin/php
 #Install supervisor
 RUN easy_install supervisor && \
     mkdir -p /var/log/supervisor && \
-    mkdir -p /var/run/sshd && \
     mkdir -p /var/run/supervisord
 
 
-#Add php-redis
-COPY package/redis-php7.zip /tmp/
-WORKDIR /tmp/
-RUN unzip redis-php7.zip
-WORKDIR /tmp/phpredis-php7 
-RUN /usr/local/php/bin/phpize
-RUN ./configure --with-php-config=/usr/local/php/bin/php-config
-RUN make -j8 && make install
-
-
-#add yaf
-COPY package/yaf-php7.zip /tmp/
-WORKDIR /tmp/
-RUN unzip yaf-php7.zip
-WORKDIR /tmp/yaf-php7/
-RUN /usr/local/php/bin/phpize
-RUN ./configure --with-php-config=/usr/local/php/bin/php-config
-RUN make -j8 && make install
-
-RUN echo "extension=redis.so" >> /usr/local/php/etc/php.ini
-RUN echo "extension=yaf.so" >> /usr/local/php/etc/php.ini
-RUN rm -rf /tmp/*
+ADD config/php.ini /usr/local/php/etc/php.ini
 
 WORKDIR /root/
 
@@ -164,8 +143,8 @@ RUN cd / && rm -rf /home/nginx-php
 
 
 # install compose
-RUN php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php
-RUN php -r "if (hash('SHA384', file_get_contents('composer-setup.php')) === '7228c001f88bee97506740ef0888240bd8a760b046ee16db8f4095c0d8d525f2367663f22a46b48d072c816e7fe19959') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+RUN php -r "if (hash_file('SHA384', 'composer-setup.php') === 'bf16ac69bd8b807bc6e4499b28968ee87456e29a3894767b60c2d4dafa3d10d045ffef2aeb2e78827fa5f024fbe93ca2') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
 RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
@@ -192,4 +171,3 @@ EXPOSE 80 443 9000
 
 #Start it
 ENTRYPOINT ["/start.sh"]
-
