@@ -63,6 +63,7 @@ RUN cd /home/nginx-php && \
     --pid-path=/var/run/nginx.pid \
     --with-pcre \
     --with-http_ssl_module \
+    --with-http_realip_module \
     --without-mail_pop3_module \
     --without-mail_imap_module \
     --with-http_gzip_static_module && \
