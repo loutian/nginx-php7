@@ -1,3 +1,2 @@
 <?php
-
-echo "I love 陈梅";
+phpinfo();
