@@ -1,14 +1,14 @@
 FROM centos
 MAINTAINER loutian <loutian@gmail.com>
 ##
-# Nginx: 1.10.0
-# PHP  : 7.0.6
+# Nginx: 1.10.2
+# PHP  : 7.0.12
 ##
 #Install system library
 #RUN yum update -y
 
-ENV PHP_VERSION 7.0.6
-ENV NGINX_VERSION 1.10.0
+ENV PHP_VERSION 7.0.12
+ENV NGINX_VERSION 1.10.2
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     gcc-c++ \
@@ -23,8 +23,7 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
 
 #Install PHP library
 ## libmcrypt-devel DIY
-RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm && \
-    yum install -y wget \
+RUN yum install -y wget \
     zlib \
     zlib-devel \
     openssl \
@@ -118,7 +117,7 @@ RUN cd /home/nginx-php && \
     make -j8 && make install
 
 
-RUN	cd /home/nginx-php/php-$PHP_VERSION && \
+RUN cd /home/nginx-php/php-$PHP_VERSION && \
     cp php.ini-production /usr/local/php/etc/php.ini && \
     cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf && \
     cp /usr/local/php/etc/php-fpm.d/www.conf.default /usr/local/php/etc/php-fpm.d/www.conf
@@ -144,11 +143,12 @@ RUN cd / && rm -rf /home/nginx-php
 
 
 # install compose
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php -r "if (hash_file('SHA384', 'composer-setup.php') === 'bf16ac69bd8b807bc6e4499b28968ee87456e29a3894767b60c2d4dafa3d10d045ffef2aeb2e78827fa5f024fbe93ca2') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
-RUN mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+    php -r "if (hash_file('SHA384', 'composer-setup.php') === 'aa96f26c2b67226a324c27919f1eb05f21c248b987e6195cad9690d5c1ff713d53020a02ac8c217dbf90a7eacc9d141d') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
+    php composer-setup.php && \
+    php -r "unlink('composer-setup.php');" && \
+    mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
+
 WORKDIR /data/www/
 #install laravel5
 RUN composer create-project laravel/laravel --prefer-dist laravel
