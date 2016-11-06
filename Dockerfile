@@ -23,7 +23,8 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
 
 #Install PHP library
 ## libmcrypt-devel DIY
-RUN yum install -y wget \
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm && \
+    yum install -y wget \
     zlib \
     zlib-devel \
     openssl \
