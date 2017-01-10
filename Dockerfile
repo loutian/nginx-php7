@@ -1,14 +1,14 @@
 FROM centos
 MAINTAINER loutian <loutian@gmail.com>
 ##
-# Nginx: 1.10.2
-# PHP  : 7.0.12
+# Nginx: 1.11.8
+# PHP  : 7.1.0
 ##
 #Install system library
 #RUN yum update -y
 
-ENV PHP_VERSION 7.0.12
-ENV NGINX_VERSION 1.10.2
+ENV PHP_VERSION 7.1.0
+ENV NGINX_VERSION 1.11.8
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     gcc-c++ \
@@ -64,6 +64,7 @@ RUN cd /home/nginx-php && \
     --with-pcre \
     --with-http_ssl_module \
     --with-http_realip_module \
+    --with-http_v2_module \
     --without-mail_pop3_module \
     --without-mail_imap_module \
     --with-http_gzip_static_module && \
