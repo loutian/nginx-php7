@@ -64,6 +64,7 @@ RUN cd /home/nginx-php && \
     --with-pcre \
     --with-http_ssl_module \
     --with-http_realip_module \
+    --with-http_v2_module \
     --without-mail_pop3_module \
     --without-mail_imap_module \
     --with-http_gzip_static_module && \
