@@ -17,13 +17,14 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     libtool \
     zip \
     unzip \
+    vsftpd \
     make \
     cmake && \
     yum clean all
 
 #Install PHP library
 ## libmcrypt-devel DIY
-RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm && \
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-9.noarch.rpm && \
     yum install -y wget \
     zlib \
     zlib-devel \
@@ -45,7 +46,7 @@ RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.no
 
 #Add user
 RUN groupadd -r www && \
-    useradd -M -s /sbin/nologin -r -g www www
+    useradd -M -s /sbin/nologin -r -g www www 
 
 #Download nginx & php
 RUN mkdir -p /home/nginx-php && cd $_ && \
@@ -133,7 +134,6 @@ RUN easy_install supervisor && \
 
 
 ADD config/php.ini /usr/local/php/etc/php.ini
-
 WORKDIR /root/
 
 #Add supervisord conf
@@ -156,7 +156,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 
 WORKDIR /data/www/
 #install laravel5
-RUN composer create-project laravel/laravel --prefer-dist laravel
+#RUN composer create-project laravel/laravel --prefer-dist laravel
 
 
 #Create web folder
@@ -164,16 +164,18 @@ VOLUME ["/data/www", "/usr/local/nginx/conf/ssl", "/usr/local/nginx/conf/vhost",
 
 #Update nginx config
 ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
+ADD config/vsftpd.conf /etc/vsftpd/vsftpd.conf
 
 #change chown
 RUN chown -R www. /data/www/
+RUN useradd -d /data/www -s /sbin/nologin -g www ftp_user && echo 'ftp_user:123123' | chpasswd
 
 #Start
 ADD start.sh /start.sh
 RUN chmod +x /start.sh
 
 #Set port
-EXPOSE 80 443 9000
+EXPOSE 80 443 9000 21 20
 
 #Start it
 ENTRYPOINT ["/start.sh"]
