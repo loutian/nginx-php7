@@ -23,7 +23,7 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
 
 #Install PHP library
 ## libmcrypt-devel DIY
-RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm && \
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-9.noarch.rpm && \
     yum install -y wget \
     zlib \
     zlib-devel \
@@ -155,9 +155,6 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 
 
 WORKDIR /data/www/
-#install laravel5
-RUN composer create-project laravel/laravel --prefer-dist laravel
-
 
 #Create web folder
 VOLUME ["/data/www", "/usr/local/nginx/conf/ssl", "/usr/local/nginx/conf/vhost", "/usr/local/php/etc/php.d"]
@@ -168,12 +165,21 @@ ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
 #change chown
 RUN chown -R www. /data/www/
 
+
+
+RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key && \
+    ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key && \
+    echo 'root:123456' |chpasswd && \
+    sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+
+
 #Start
 ADD start.sh /start.sh
 RUN chmod +x /start.sh
 
 #Set port
-EXPOSE 80 443 9000
+EXPOSE 80 443 9000 22
 
 #Start it
 ENTRYPOINT ["/start.sh"]
