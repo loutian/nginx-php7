@@ -132,7 +132,7 @@ RUN easy_install supervisor && \
     mkdir -p /var/run/supervisord
 
 
-ADD config/php.ini /usr/local/php/etc/php.ini
+#ADD config/php.ini /usr/local/php/etc/php.ini
 
 WORKDIR /root/
 
@@ -150,6 +150,17 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     php composer-setup.php && \
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
+
+
+
+#Add php-redis
+COPY package/redis-php7.zip /tmp/
+WORKDIR /tmp/
+RUN unzip redis-php7.zip
+WORKDIR /tmp/phpredis-php7
+RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make -j8 && make install && echo "extension=redis.so" >> /usr/local/php/etc/php.ini
+#RUN echo "extension=redis.so" >> /usr/local/php/etc/php.ini
+#ADD config/php.ini /usr/local/php/etc/php.ini
 
 
 
@@ -171,7 +182,9 @@ RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key && \
     ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key && \
     echo 'root:123456' |chpasswd && \
     sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+    sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
+    sed -ri 's/#ClientAliveInterval 0/ClientAliveInterval 3600/g' /etc/ssh/sshd_config && \
+    sed -ri 's/#ClientAliveCountMax 3/ClientAliveCountMax 10/g' /etc/ssh/sshd_config
 
 
 #Start
