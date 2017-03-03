@@ -1,14 +1,14 @@
-FROM centos
+FROM centos:7
 MAINTAINER loutian <loutian@gmail.com>
 ##
-# Nginx: 1.10.0
-# PHP  : 7.0.6
+# Nginx: 1.11.10
+# PHP  : 7.1.2
 ##
 #Install system library
 #RUN yum update -y
 
-ENV PHP_VERSION 7.0.6
-ENV NGINX_VERSION 1.10.0
+ENV PHP_VERSION 7.1.2
+ENV NGINX_VERSION 1.11.10
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     gcc-c++ \
@@ -23,7 +23,7 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
 
 #Install PHP library
 ## libmcrypt-devel DIY
-RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm && \
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-9.noarch.rpm && \
     yum install -y wget \
     zlib \
     zlib-devel \
@@ -38,7 +38,6 @@ RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch
     libjpeg-devel \
     freetype-devel \
     libmcrypt-devel \
-    openssh-server \
     mysql \
     python-setuptools && \
     yum clean all
@@ -119,34 +118,17 @@ RUN cd /home/nginx-php && \
     make -j8 && make install
 
 
-RUN	cd /home/nginx-php/php-$PHP_VERSION && \
+RUN cd /home/nginx-php/php-$PHP_VERSION && \
     cp php.ini-production /usr/local/php/etc/php.ini && \
     cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf && \
     cp /usr/local/php/etc/php-fpm.d/www.conf.default /usr/local/php/etc/php-fpm.d/www.conf
+
+RUN ln -s /usr/local/php/bin/php /usr/local/bin/php
 
 #Install supervisor
 RUN easy_install supervisor && \
     mkdir -p /var/log/supervisor && \
     mkdir -p /var/run/supervisord
-
-
-#Add php-redis
-COPY package/redis-php7.zip /tmp/
-WORKDIR /tmp/
-RUN unzip redis-php7.zip
-WORKDIR /tmp/phpredis-php7
-RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make -j8 && make install
-
-
-#add yaf
-COPY package/yaf-php7.zip /tmp/
-WORKDIR /tmp/
-RUN unzip yaf-php7.zip
-WORKDIR /tmp/yaf-php7/
-RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config && make -j8 && make install && \
-     rm -rf /tmp/*
-
-ADD config/php.ini /usr/local/php/etc/php.ini
 
 WORKDIR /root/
 
@@ -156,16 +138,24 @@ ADD config/supervisord.conf /etc/supervisord.conf
 #Remove zips
 RUN cd / && rm -rf /home/nginx-php
 
+#Add php-redis
+COPY package/redis-php7.zip /tmp/
+WORKDIR /tmp/
+RUN unzip redis-php7.zip
+WORKDIR /tmp/phpredis-php7
+RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make -j8 && make install && echo "extension=redis.so" >> /usr/local/php/etc/php.ini
+
+WORKDIR /data/www/
+
 #Create web folder
 VOLUME ["/data/www", "/usr/local/nginx/conf/ssl", "/usr/local/nginx/conf/vhost", "/usr/local/php/etc/php.d"]
-ADD index.php /data/www/index.php
-
 
 #Update nginx config
 ADD config/nginx.conf /usr/local/nginx/conf/nginx.conf
 
 #change chown
 RUN chown -R www. /data/www/
+
 
 #Start
 ADD start.sh /start.sh
