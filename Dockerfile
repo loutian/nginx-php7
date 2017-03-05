@@ -145,6 +145,14 @@ RUN unzip redis-php7.zip
 WORKDIR /tmp/phpredis-php7
 RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make -j8 && make install && echo "extension=redis.so" >> /usr/local/php/etc/php.ini
 
+
+#Add yaf extension
+COPY package/yaf-php7.tar.gz /tmp/
+WORKDIR /tmp/
+RUN tar xvzf yaf-php7.tar.gz
+WORKDIR /tmp/yaf-php7/
+RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make -j8 && make install && echo "extension=yaf.so" >> /usr/local/php/etc/php.ini
+
 WORKDIR /data/www/
 
 #Create web folder
