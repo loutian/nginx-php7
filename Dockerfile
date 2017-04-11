@@ -1,4 +1,4 @@
-FROM centos:7.3
+FROM centos:7
 MAINTAINER loutian <loutian@gmail.com>
 ##
 # Nginx: 1.11.10
