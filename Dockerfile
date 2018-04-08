@@ -1,14 +1,14 @@
 FROM centos:7
 MAINTAINER loutian <loutian@gmail.com>
 ##
-# Nginx: 1.11.10
-# PHP  : 7.1.2
+# Nginx: 1.13.11
+# PHP  : 7.1.16
 ##
 #Install system library
 #RUN yum update -y
 
-ENV PHP_VERSION 7.1.3
-ENV NGINX_VERSION 1.11.13
+ENV PHP_VERSION 7.1.16
+ENV NGINX_VERSION 1.13.11
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     gcc-c++ \
@@ -23,7 +23,7 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
 
 #Install PHP library
 ## libmcrypt-devel DIY
-RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-9.noarch.rpm && \
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm && \
     yum install -y wget \
     zlib \
     zlib-devel \
