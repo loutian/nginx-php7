@@ -67,11 +67,11 @@ RUN cd /home/nginx-php && \
     --without-mail_pop3_module \
     --without-mail_imap_module \
     --with-http_gzip_static_module && \
-    make -j8 && make install
+    make && make install
 
 #Make install php
 RUN cd /home/nginx-php && \
-    tar zvxf php.tar.gz && \
+    tar -zvxf php.tar.gz && \
     cd php-$PHP_VERSION && \
     ./configure --prefix=/usr/local/php \
     --with-config-file-path=/usr/local/php/etc \
@@ -115,8 +115,7 @@ RUN cd /home/nginx-php && \
     --enable-ipv6 \
     --disable-debug \
     --without-pear && \
-    make -j8 && make install
-
+    make && make install
 
 RUN cd /home/nginx-php/php-$PHP_VERSION && \
     cp php.ini-production /usr/local/php/etc/php.ini && \
@@ -142,8 +141,8 @@ RUN cd / && rm -rf /home/nginx-php
 COPY package/redis-php7.zip /tmp/
 WORKDIR /tmp/
 RUN unzip redis-php7.zip
-WORKDIR /tmp/phpredis-php7
-RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make -j8 && make install && echo "extension=redis.so" >> /usr/local/php/etc/php.ini
+WORKDIR /tmp/redis-php7
+RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make && make install && echo "extension=redis.so" >> /usr/local/php/etc/php.ini
 
 
 #Add yaf extension
@@ -151,7 +150,7 @@ COPY package/yaf-php7.tar.gz /tmp/
 WORKDIR /tmp/
 RUN tar xvzf yaf-php7.tar.gz
 WORKDIR /tmp/yaf-php7/
-RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make -j8 && make install && echo "extension=yaf.so" >> /usr/local/php/etc/php.ini
+RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make && make install && echo "extension=yaf.so" >> /usr/local/php/etc/php.ini
 
 WORKDIR /data/www/
 
