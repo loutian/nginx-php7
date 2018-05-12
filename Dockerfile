@@ -1,14 +1,14 @@
 FROM centos
 MAINTAINER loutian <loutian@gmail.com>
 ##
-# Nginx: 1.11.8
-# PHP  : 7.1.0
+# Nginx: 1.14.0
+# PHP  : 7.1.17
 ##
 #Install system library
 #RUN yum update -y
 
-ENV PHP_VERSION 7.1.0
-ENV NGINX_VERSION 1.11.8
+ENV PHP_VERSION 7.1.17
+ENV NGINX_VERSION 1.14.0
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     gcc-c++ \
@@ -23,7 +23,7 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
 
 #Install PHP library
 ## libmcrypt-devel DIY
-RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm && \
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm && \
     yum install -y wget \
     zlib \
     zlib-devel \
@@ -145,13 +145,11 @@ RUN cd / && rm -rf /home/nginx-php
 
 
 # install compose
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-    php -r "if (hash_file('SHA384', 'composer-setup.php') === '55d6ead61b29c7bdee5cccfb50076874187bd9f21f65d8991d46ec5cc90518f447387fb9f76ebae1fbbacf329e583e30') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
-    php composer-setup.php && \
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    php -r "if (hash_file('SHA384', 'composer-setup.php') === '544e09ee996cdf60ece3804abc52599c22b1f40f4323403c44d44fdfdd586475ca9813a858088ffbc1f233e9b180f061') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
+    php composer-setup.php \
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
-
-
 
 
 WORKDIR /data/www/
