@@ -1,14 +1,14 @@
 FROM centos:7
 MAINTAINER loutian <loutian@gmail.com>
 ##
-# Nginx: 1.13.11
-# PHP  : 7.1.16
+# Nginx: 1.14.0
+# PHP  : 7.1.17
 ##
 #Install system library
 #RUN yum update -y
 
-ENV PHP_VERSION 7.1.16
-ENV NGINX_VERSION 1.13.11
+ENV PHP_VERSION 7.1.17
+ENV NGINX_VERSION 1.14.0
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     gcc-c++ \
