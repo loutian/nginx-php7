@@ -152,9 +152,16 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
 
+#Add yaf extension
+COPY package/mongodb-1.4.3.tgz /tmp/
+WORKDIR /tmp/
+RUN tar xvzf mongodb-1.4.3.tgz
+WORKDIR /tmp/mongodb-1.4.3/
+RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make && make install && echo "extension=mongodb.so" >> /usr/local/php/etc/php.ini
+
 WORKDIR /data/www/
 #install laravel5
-RUN composer create-project laravel/laravel --prefer-dist laravel
+#RUN composer create-project laravel/laravel --prefer-dist laravel
 
 
 #Create web folder
