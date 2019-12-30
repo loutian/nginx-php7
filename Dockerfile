@@ -1,14 +1,14 @@
-FROM centos
+FROM centos:centos7.7.1908
 MAINTAINER loutian <loutian@gmail.com>
 ##
-# Nginx: 1.14.0
-# PHP  : 7.2.5
+# Nginx: 1.16.1
+# PHP  : 7.2.26
 ##
 #Install system library
 #RUN yum update -y
 
-ENV NGINX_VERSION 1.14.0
-ENV PHP_VERSION 7.2.5
+ENV NGINX_VERSION 1.16.1
+ENV PHP_VERSION 7.2.26
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     gcc-c++ \
@@ -19,11 +19,12 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && yum install -y gcc \
     unzip \
     make \
     cmake && \
-    yum clean all
+    yum clean all && \
+    yum remove -y libzip
 
 #Install PHP library
 ## libmcrypt-devel DIY
-RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm && \
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-12.noarch.rpm && \
     yum install -y wget \
     zlib \
     zlib-devel \
@@ -69,6 +70,16 @@ RUN cd /home/nginx-php && \
     --without-mail_imap_module \
     --with-http_gzip_static_module && \
     make -j8 && make install
+
+#install libzip
+#COPY package/libzip-1.2.0.tar.gz /tmp/
+#WORKDIR /tmp/
+#RUN tar xvzf libzip-1.2.0.tar.gz
+#WORKDIR /tmp/libzip-1.2.0/
+#RUN ./configure && make && make install && rm -rf /tmp/libzip-1.2.0
+
+
+#RUN echo '/usr/local/lib64 /usr/local/lib /usr/lib /usr/lib64' >> /etc/ld.so.conf && ldconfig -v
 
 #Make install php
 RUN cd /home/nginx-php && \
@@ -146,17 +157,25 @@ RUN cd / && rm -rf /home/nginx-php
 
 # install compose
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-    php -r "if (hash_file('SHA384', 'composer-setup.php') === '544e09ee996cdf60ece3804abc52599c22b1f40f4323403c44d44fdfdd586475ca9813a858088ffbc1f233e9b180f061') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
+    php -r "if (hash_file('SHA384', 'composer-setup.php') === 'baf1608c33254d00611ac1705c1d9958c817a1a33bce370c0595974b342601bd80b92a3f46067da89e3b06bff421f182') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
     php composer-setup.php && \
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
-
-#Add yaf extension
-COPY package/mongodb-1.4.3.tgz /tmp/
+#Add php-redis
+COPY package/phpredis-5.1.1.zip /tmp/
 WORKDIR /tmp/
-RUN tar xvzf mongodb-1.4.3.tgz
-WORKDIR /tmp/mongodb-1.4.3/
+RUN unzip phpredis-5.1.1.zip
+WORKDIR /tmp/phpredis-5.1.1
+RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make && make install && echo "extension=redis.so" >> /usr/local/php/etc/php.ini
+
+
+
+#Add mongodb extension
+COPY package/mongodb-1.6.1.tgz /tmp/
+WORKDIR /tmp/
+RUN tar xvzf mongodb-1.6.1.tgz
+WORKDIR /tmp/mongodb-1.6.1/
 RUN /usr/local/php/bin/phpize && ./configure --with-php-config=/usr/local/php/bin/php-config &&  make && make install && echo "extension=mongodb.so" >> /usr/local/php/etc/php.ini
 
 WORKDIR /data/www/
